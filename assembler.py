@@ -1,20 +1,36 @@
 class UnrecognizedInstructionException(ValueError):
-    def __init__(self) -> None:
-        super().__init__()
+    def __init__(self, *args: object) -> None:
+        super().__init__(*args)
 
 class InvalidInstructionFormatException(ValueError):
-    def __init__(self) -> None:
-        super().__init__()
+    def __init__(self, *args: object) -> None:
+        super().__init__(*args)
+
+class UnrecognizedRegisterException(ValueError):
+    def __init__(self, *args: object) -> None:
+        super().__init__(*args)
+
+class ImmediateOverflowException(ValueError):
+    def __init__(self, *args: object) -> None:
+        super().__init__(*args)
+
+class InvalidImmediateException(ValueError):
+    def __init__(self, *args: object) -> None:
+        super().__init__(*args)
 
 
 def getRegisterEncoding(reg: str):
     if len(reg) != 2 or reg[0].lower() != 'r':
-        raise InvalidInstructionFormatException
+        raise UnrecognizedRegisterException(
+            f'"{reg}" is not a valid register'
+        )
     reg_int = int(reg[1])
 
     # we have only 7 registers 
     if not (0 <= reg_int <= 7):
-        raise InvalidInstructionFormatException
+        raise UnrecognizedRegisterException(
+            f'"{reg}" is not a valid register'
+        )
     return reg_int
 
 
@@ -30,12 +46,16 @@ def getImmediateEncoding(imm, length):
         # assume decimal
             enc = int(imm)
     except ValueError:
-        raise InvalidInstructionFormatException
+        raise InvalidImmediateException(
+            f'cannot convert "{imm}" to a integer immediate'
+        )
 
     # ensure that the supplied immediate fits in the size
     # the range is as such because the immediates are signed
-    if not (-(2**(length-1)) <= enc <= 2**(length) - 1):
-        raise InvalidInstructionFormatException
+    if not (-(2**(length-1)) <= enc <= 2**(length-1) - 1):
+        raise ImmediateOverflowException(
+            f'immediate "{imm}" cannot fit in {length}-bits (signed)'
+        )
     return enc
 
 
@@ -127,7 +147,9 @@ def assemble(line: str):
             convertToBinary(imm9_enc, 9)
         )
     else:
-        raise UnrecognizedInstructionException
+        raise UnrecognizedInstructionException(
+            f'"{inst}" is not a recognized instruction'
+        )
 
 
 def convertToBinary(num: int, size: int):
@@ -136,7 +158,8 @@ def convertToBinary(num: int, size: int):
     # integer. we take modulo with 2**size to take only the lower bits
     # withing the specified size
     n = int.from_bytes(
-        num.to_bytes(32, signed=True)
+        num.to_bytes(32, signed=True, byteorder='big'),
+        byteorder='big'
     ) % (2**size)
     return f'{{0:0{size}b}}'.format(n)
 
@@ -165,8 +188,8 @@ def main():
         if line:
             try:
                 print(''.join(assemble(line)))
-            except:
-                print(f'ERROR on line {i+1}')
+            except ValueError as e:
+                print(f'ERROR on line {i+1}: {e.args[0]}')
                 print('** ABORT **')
                 exit(1)
 
