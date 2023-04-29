@@ -1,0 +1,66 @@
+-- if compliment = '1' then
+            --     tempB <= not b;
+            -- else
+            --     tempB <= x"0010";
+            -- end if;            
+            -- -- adder
+            -- if op = '0' then
+            --     write(output, " inside adder: ");
+            --     tempOutAdder <= std_logic_vector(signed(a) + signed(tempB));
+            --     if condition = "00" then
+            --         carryFlag <= carryFlagFinder(a(15), tempB(15), tempOutAdder(15));
+            --         zeroFlag <= zeroFlagFinder(tempOutAdder(15 downto 0));
+            --         result <= tempOutAdder(15 downto 0);
+            --     elsif ((condition = "10") and (carryFlagPrevious = '1')) then
+            --         carryFlag <= carryFlagFinder(a(15), tempB(15), tempOutAdder(15));
+            --         zeroFlag <= zeroFlagFinder(tempOutAdder(15 downto 0));
+            --         result <= tempOutAdder(15 downto 0);
+            --     elsif ((condition = "01") and (zeroFlagPrevious = '1')) then
+            --         carryFlag <= carryFlagFinder(a(15), tempB(15), tempOutAdder(15));
+            --         zeroFlag <= zeroFlagFinder(tempOutAdder(15 downto 0));
+            --         result <= tempOutAdder(15 downto 0);
+            --     elsif condition = "11" then
+            --         carryPastVector(0) <= carryFlagPrevious;
+            --         tempOutAdderCarry <= std_logic_vector(signed(tempOutAdder) + signed(carryPastVector));
+            --         carryFlag <= carryFlagFinder(a(15), tempB(15), tempOutAdder(15));
+            --         zeroFlag <= zeroFlagFinder(tempOutAdder(15 downto 0));
+            --         result <= tempOutAdderCarry(15 downto 0);
+            --     end if;
+
+
+
+
+
+
+
+            -- -- NAND
+            -- elsif op = '1' then
+            --     tempNand <= not std_logic_vector(unsigned(a) and unsigned(tempB));
+
+            --     -- SPL ADDER
+            --     if condition = "11" then
+            --         tempOutAdder <= std_logic_vector(signed(a) + signed(tempB));
+            --         carryFlag <= carryFlagFinder(a(15), tempB(15), tempOutAdder(15));
+            --         zeroFlag <= zeroFlagFinder(tempOutAdder(15 downto 0));
+            --         result <= tempOutAdder(15 downto 0);
+            --     else
+            --         carryFlag <= carryFlagPrevious;
+            --         if condition = "00" then
+            --             zeroFlag <= zeroFlagFinder(tempNand);
+            --             result <= tempNand;
+            --         elsif ((condition = "10") and (carryFlagPrevious = '1')) then
+            --             zeroFlag <= zeroFlagFinder(tempNand);
+            --             result <= tempNand;
+            --         elsif ((condition = "01") and (zeroFlagPrevious = '1')) then
+            --             zeroFlag <= zeroFlagFinder(tempNand);
+            --             result <= tempNand;
+            --         end if;
+            --     end if;
+            -- end if;
+
+
+
+
+
+            
+            

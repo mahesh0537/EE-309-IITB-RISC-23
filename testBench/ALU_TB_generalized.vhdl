@@ -33,7 +33,7 @@ architecture Behave of Testbench is
         enable : in std_logic;
         zeroFlagPrevious : in std_logic;
         carryFlagPrevious : in std_logic;
-        result : out std_logic_vector(15 downto 0);
+        result : buffer std_logic_vector(15 downto 0);
         zeroFlag, carryFlag : out std_logic);
   end component;
 
@@ -188,19 +188,19 @@ begin
       output_vector_z_comp := (bit_to_std_logic(output_mask_var_z) and (bit_to_std_logic(output_vector_z) xor zero_out));
       output_vector_c_comp := (bit_to_std_logic(output_mask_var_c) and (bit_to_std_logic(output_vector_c) xor carry_out));
           if (output_vector_comp /= ZZZZout) then
-             write(OUTPUT_LINE,to_string("ERROR: line "));
+             write(OUTPUT_LINE,to_string("ERROR: in result line "));
              write(OUTPUT_LINE, LINE_COUNT);
              writeline(OUTFILE, OUTPUT_LINE);
              err_flag := true;
           end if;
           if (output_vector_z_comp /= ZZZZoutz) then
-             write(OUTPUT_LINE,to_string("ERROR: line "));
+             write(OUTPUT_LINE,to_string("ERROR: in z flag line "));
              write(OUTPUT_LINE, LINE_COUNT);
              writeline(OUTFILE, OUTPUT_LINE);
              err_flag := true;
           end if;
           if (output_vector_c_comp /= ZZZZoutc) then
-             write(OUTPUT_LINE,to_string("ERROR: line "));
+             write(OUTPUT_LINE,to_string("ERROR: in c flag line "));
              write(OUTPUT_LINE, LINE_COUNT);
              writeline(OUTFILE, OUTPUT_LINE);
              err_flag := true;
