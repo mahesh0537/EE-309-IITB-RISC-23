@@ -166,32 +166,54 @@ def convertToBinary(num: int, size: int):
 
 
 
-def main():
-    import sys
-    if len(sys.argv) == 1:
-        print('no input file specified')
-        print('usage: `python assembler.py <file>`')
-        print('** ABORT **')
-        exit(1)
-    file_name = sys.argv[1]
-    
-    try:
-        with open(file_name) as f:
-            lines = f.readlines()
-    except:
-        print(f'"{file_name}": no such file in directory')
-        print('** ABORT **')
-        exit(2)
+def main(lines=None, file=None, outfile=None, exitOnError=True):
+
+    if outfile is None:
+        import sys
+        outfile = sys.stdout
+
+    if lines is None:
+        try:
+            if file is None:
+                file_name = "<file>"
+                import sys
+                if len(sys.argv) == 1:
+                    print('no input file specified', file=outfile)
+                    print('usage: `python assembler.py <file>`', file=outfile)
+                    print('** ABORT **', file=outfile)
+                    if exitOnError:
+                        exit(1)
+                    else:
+                        return 1
+                file_name = sys.argv[1]
+                with open(file_name) as f:
+                    lines = f.readlines()
+            else:
+                lines = file.readlines()
+        except:
+            print(f'"{file_name}": no such file in directory', file=outfile)
+            print('** ABORT **', file=outfile)
+            if exitOnError:
+                exit(2)
+            else:
+                return 2
+    else:
+        lines = lines.split('\n')
+        file_name = "<string>"
     
     for i, line in enumerate(lines):
         line = line.split(';')[0].strip()
         if line:
             try:
-                print(''.join(assemble(line)))
+                print(''.join(assemble(line)), file=outfile)
             except ValueError as e:
-                print(f'ERROR on line {i+1}: {e.args[0]}')
-                print('** ABORT **')
-                exit(1)
+                print(f'In file "{file_name}": ERROR on line {i+1}: {e.args[0]}', file=outfile)
+                print('** ABORT **', file=outfile)
+                if exitOnError:
+                    exit(1)
+                else:
+                    return 1
+    return 0
 
 if __name__ == '__main__':
     main()
