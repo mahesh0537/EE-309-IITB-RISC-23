@@ -14,7 +14,7 @@ entity instructionDecoder is
 		-- 16 bit immediate that is appropriately sign extended
 		-- the actual size of the immediate might have been
 		-- 9 or 16 bits depending on the instruction.
-		immediate: out std_logic_vector(8 downto 0);
+		immediate: out std_logic_vector(15 downto 0);
 		
 		-- the two condition bits required by R type instructions
 		condition: out std_logic_vector(1 downto 0);
