@@ -125,8 +125,6 @@ def assemble(line: str):
 
         # the encoding of adi instruction is given to be opposite
         # so make changes as necessary
-        if inst.lower() == 'adi':
-            ra_enc, rb_enc = rb_enc, ra_enc
 
         imm6_enc = getImmediateEncoding(imm6, 6)
         opcode, = ITypeInstructions[inst]
