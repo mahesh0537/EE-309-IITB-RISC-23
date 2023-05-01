@@ -4,6 +4,7 @@ use ieee.numeric_std.all;
 
 entity execStage is
 	port(
+		-- not needed, 
 		clk: in std_logic;
 	
 		opcode: in std_logic_vector(3 downto 0);
@@ -25,6 +26,14 @@ entity execStage is
 		regToWrite: out std_logic_vector(2 downto 0);
 		writeReg: out std_logic;
 		
+		zeroFlagIn: in std_logic;
+		zeroFlagOut: out std_logic;
+--		zeroFlagWriteEnable: in std_logic;
+		
+		carryFlagIn: in std_logic;
+		carryFlagOut: out std_logic;
+--		carryFlagWriteEnable: in std_logic;
+		
 		-- writing the result to RAM, instead of register file
 		RAM_Address: out std_logic_vector(15 downto 0);
 		RAM_writeEnable: out std_logic;
@@ -44,16 +53,12 @@ end entity execStage;
 architecture impl of execStage is
 component ALU_wrapper is
 	port (
-		-- inputs to be forwarded to the ALU
-		-- the exact operation performed is dependent on the opcode
-		-- see the doc for more details
 		RaValue, RbValue, immediate: in std_logic_vector(15 downto 0);
 		opcode: in std_logic_vector(3 downto 0);
 		condition: in std_logic_vector(1 downto 0);
 		compliment: in std_logic;
 		ZF_prev, CF_prev: in std_logic;
-		
-		-- results of the operation
+
 		result: out std_logic_vector(15 downto 0);
 		ZF, CF: out std_logic;
 		useResult: out std_logic
@@ -104,10 +109,10 @@ end component loadStoreHandler;
 signal ALU_ZF, ALU_CF: std_logic;
 signal ALU_result: std_logic_vector(15 downto 0);
 signal ALU_useResult: std_logic;
-signal ALU_A, ALU_B: std_logic_vector(15 downto 0);
+--signal ALU_A, ALU_B: std_logic_vector(15 downto 0);
 
-signal m_ZeroFlag: std_logic := '0';
-signal m_CarryFlag: std_logic := '0';
+--signal m_ZeroFlag: std_logic := '0';
+--signal m_CarryFlag: std_logic := '0';
 
 -- CB is conditional Branch, UCB is unconditional branch
 signal CB_PC_new, UCB_PC_new: std_logic_vector(15 downto 0);
@@ -118,10 +123,6 @@ signal UCB_RA_new: std_logic_vector(15 downto 0);
 signal PC_plus2: std_logic_vector(15 downto 0);
 begin
 	
-	-- ALU_A <= RaValue;
-	-- ALU_B <= RbValue when (opcode = "0001" or opcode = "0010") else
-	-- 			immediate; --when (opcode = "0000")
-	
 	ALU_wrapperInstance: ALU_wrapper
 		port map (
 			RaValue => RaValue,
@@ -129,8 +130,8 @@ begin
 			immediate => immediate,
 			opcode => opcode,
 			condition => condition,
-			ZF_prev => m_ZeroFlag,
-			CF_prev => m_CarryFlag,
+			ZF_prev => ZeroFlagIn,
+			CF_prev => CarryFlagIn,
 			compliment => useComplement,
 			
 			result => ALU_result,
@@ -182,56 +183,32 @@ begin
 			writeBackUseRAM_orALU => writeBackUseRAM_orALU,
 			writeBackEnable => writeBackEnable
 		);
-	process (clk) begin
-		if clk = '1' then
-			if (ALU_useResult = '1') then
-				m_ZeroFlag <= ALU_ZF;
-				m_CarryFlag <= ALU_CF;
-				regNewValue <= ALU_result;
-				if (opcode = "0001" or opcode = "0010") then
-					regToWrite <= Rc;
-				else
-					regToWrite <= Ra;
-				end if;
-				-- regToWrite <= Rc when (opcode = "0001" or opcode = "0010") else Ra;
-				writeReg <= '1';
-				
-				-- default pc increment, done in instruction
-				-- fetch stage. write dummy value for now
-				PC_new <= "1100110011001100";
-				useNewPc <= '0';
-			elsif (CB_useNewPC = '1') then
-				-- flags are not modified
-			
-				PC_new <= CB_PC_new;
-				useNewPc <= '1';
-				
-				-- none of the conditional branch instructions
-				-- modify registers. write a dummy value for now
-				regNewValue <= "0011001100110011";
-				regToWrite <= "111";
-				writeReg <= '0';
-			elsif (UCB_useNewPC = '1') then
-				-- flags are not modified
-				PC_new <= UCB_PC_new;
-				useNewPc <= UCB_useNewPC;
-				
-				-- jal and jlr write to a register
-				regNewValue <= UCB_RA_new;
-				regToWrite <= Ra;
-				writeReg <= UCB_useNewRa;
-				
-			else
-				-- nothing is updated
-				PC_new <= "1100110011001100";
-				useNewPc <= '0';
-				regNewValue <= "0011001100110011";
-				regToWrite <= "111";
-				writeReg <= '0';
- 			end if;
-		end if;
-	end process;
 	
+	zeroFlagOut <= ALU_ZF when ALU_useResult = '1' else zeroFlagIn;
+	carryFlagOut <= ALU_CF when ALU_useResult = '1' else carryFlagIn;					
+	
+	-- whether we use the new result or not is decided by the writeReg flag
+	regNewValue <= ALU_result when ALU_useResult = '1' else
+						UCB_RA_new when UCB_useNewRa = '1' else
+						"0000000000000000";
+	
+	regToWrite <= 	Rc when (ALU_useResult = '1' and (opcode = "0001" or opcode = "0010")) else -- Rtype ADD and Rtype NAND instructions
+						Ra when (ALU_useResult = '1' and opcode = "0000") else
+						Ra when (UCB_useNewPC = '1') else "111";
+	
+	writeReg <= '1' when ALU_useResult = '1' else
+					'0' when CB_useNewPC = '1' else
+					UCB_useNewRa when UCB_useNewPC = '1' else '0';
+	
+	PC_new <= 	"0000000000000000" when ALU_useResult = '1' else
+					CB_PC_new when CB_useNewPC = '1' else
+					UCB_PC_new when UCB_useNewPC = '1' else
+					"0000000000000000";
+	
+	useNewPc <= '0' when ALU_useResult = '1' else
+					'1' when CB_useNewPC = '1' else
+					'1' when UCB_useNewPC = '1' else '0';
+
 	-- will use later when pipelining
 	stallInstructionRead <= '0';
 end architecture impl;
