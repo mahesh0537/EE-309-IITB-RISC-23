@@ -1,7 +1,6 @@
 work/*
 *.mti
 *.mpf
-*.ipynb
 *.rdb
 *.rpt
 *.out

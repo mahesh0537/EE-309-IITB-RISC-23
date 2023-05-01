@@ -47,9 +47,7 @@ architecture whatever of IF_ID_Reg is
     end component;
 
     component execStage is
-        port(
-            clk: in std_logic;
-        
+        port(        
             opcode: in std_logic_vector(3 downto 0);
             Ra, Rb, Rc: in std_logic_vector(2 downto 0);
             RaValue, RbValue: in std_logic_vector(15 downto 0);
@@ -68,6 +66,14 @@ architecture whatever of IF_ID_Reg is
             regNewValue: out std_logic_vector(15 downto 0);
             regToWrite: out std_logic_vector(2 downto 0);
             writeReg: out std_logic;
+
+            zeroFlagIn: in std_logic;
+            zeroFlagOut: out std_logic;
+    --		zeroFlagWriteEnable: in std_logic;
+            
+            carryFlagIn: in std_logic;
+            carryFlagOut: out std_logic;
+    --		carryFlagWriteEnable: in std_logic;
             
             -- writing the result to RAM, instead of register file
             RAM_Address: out std_logic_vector(15 downto 0);
@@ -106,6 +112,16 @@ architecture whatever of IF_ID_Reg is
             writeDataOUT : out std_logic_vector(15 downto 0);
             writeAddressIN : in std_logic_vector(2 downto 0);
             writeAddressOUT : out std_logic_vector(2 downto 0)
+        );
+    end component;
+
+    component flagReg is
+        port (
+            clk, reset : in std_logic;
+            SetZ : in std_logic;
+            Z : out std_logic;
+            SetC : in std_logic;
+            C : out std_logic
         );
     end component;
 
@@ -151,12 +167,22 @@ architecture whatever of IF_ID_Reg is
     signal reg3Addr_WB : std_logic_vector(2 downto 0) := (others => '1');
     signal reg3Data_WB : std_logic_vector(15 downto 0) := (others => '1');
 
+    --Signal for FlagReg
+    signal Z_Ex, C_Ex : std_logic := '0';
+    signal Z_FlagReg, C_FlagReg : std_logic := '0';
+    signal resetFlags : std_logic := '0';
+
 
     signal randomSignal : std_logic := '0';
 
 
 
 begin
+    flagReg1 : flagReg port map(
+        clk => clk, reset => resetFlags,
+        SetZ => Z_Ex, Z => Z_FlagReg,
+        SetC => C_Ex, C => C_FlagReg
+    );
     instructionFetch1 : instructionFetch port map(
         clk => clk,
         PCtoFetch => PCtoFetch,
@@ -181,7 +207,6 @@ begin
         reset => regResetSignal, updatePC => updatePCinRegFile, readPC => '1'
     );
     execStage1 : execStage port map(
-        clk => clk,
         opcode => opcode_ID,
         Ra => Ra_ID, Rb => Rb_ID, Rc => Rc_ID,
         RaValue => reg1Data_RF, RbValue => reg2Data_RF,
@@ -193,6 +218,8 @@ begin
         regNewValue => reg3Data_Ex,
         regToWrite => reg3Addr_Ex,
         writeReg => randomSignal,
+        zeroFlagIn => Z_FlagReg, zeroFlagOut => Z_Ex,
+        carryFlagIn => C_FlagReg, carryFlagOut => C_Ex,
         RAM_Address => RAM_Address_Ex,
         RAM_writeEnable => RAM_writeEnable_Ex,
         RAM_DataToWrite => RAM_DataToWrite_Ex,

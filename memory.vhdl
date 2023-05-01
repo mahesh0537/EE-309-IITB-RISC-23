@@ -24,7 +24,7 @@ begin
             if RAM_Write = '1' then
                 RAM_Array(to_integer(unsigned(RAM_Address))) <= RAM_Data_IN;
             end if;
-            RAM_Data_OUT <= RAM_Array(to_integer(unsigned(RAM_Address)));
         end if;
+        RAM_Data_OUT <= RAM_Array(to_integer(unsigned(RAM_Address)));
     end process;
 end Behavioral;

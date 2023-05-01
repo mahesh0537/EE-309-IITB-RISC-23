@@ -4,9 +4,6 @@ use ieee.numeric_std.all;
 
 entity execStage is
 	port(
-		-- not needed, 
-		clk: in std_logic;
-	
 		opcode: in std_logic_vector(3 downto 0);
 		Ra, Rb, Rc: in std_logic_vector(2 downto 0);
 		RaValue, RbValue: in std_logic_vector(15 downto 0);
