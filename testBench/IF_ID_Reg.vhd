@@ -66,7 +66,7 @@ architecture whatever of IF_ID_Reg is
     --Signal for Register File
     signal reg1Data_RF, reg2Data_RF, PC_RF : std_logic_vector(15 downto 0) := (others => '0');
     signal regResetSignal : std_logic := '0';
-    signal updatePCinRegFile : std_logic := '1';
+    signal updatePCinRegFile : std_logic := '0';
 
 
     --Signal for Exec
@@ -74,9 +74,9 @@ architecture whatever of IF_ID_Reg is
     --Signal for MEM
 
     --Signal for WB
-    signal regWrite_WB : std_logic := '0';
-    signal reg3Addr_WB : std_logic_vector(2 downto 0) := (others => '0');
-    signal reg3Data_WB : std_logic_vector(15 downto 0) := (others => '0');
+    signal regWrite_WB : std_logic := '1';
+    signal reg3Addr_WB : std_logic_vector(2 downto 0) := (others => '1');
+    signal reg3Data_WB : std_logic_vector(15 downto 0) := (others => '1');
 
 
 
@@ -117,6 +117,7 @@ begin
             wait for 10 ns;
             i := i + 1;
             PCtoFetch <= PCOutFinal_IF;
+            updatePCinRegFile <= '1';
             --IF WRITE
             write(OUTPUT_LINE, to_string("Instruction: "));
             write(OUTPUT_LINE, to_bitvector(instruction_IF));

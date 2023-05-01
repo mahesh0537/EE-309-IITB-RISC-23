@@ -18,33 +18,38 @@ end regFile;
 
 architecture regFile_arch of regFile is
     type regFileType is array (0 to 7) of std_logic_vector(15 downto 0);
-    signal regFile : regFileType := (others => (others => '0'));
+    signal regFileArray : regFileType := (others => (others => '0'));
+    signal justToTest : std_logic_vector(15 downto 0);
     
 begin
     
     process(clk)
     begin
-        if rising_edge(clk) then
-            if regWrite = '1' then
-                regFile(to_integer(unsigned(reg3Addr))) <= reg3Data;
-            end if;
-            if updatePC = '1' then
-                regFile(0) <= PCtoRF;
+        if reset = '1' then
+            regFileArray <= (others => (others => '0'));
+        elsif rising_edge(clk) then
+            if regWrite = '1' and updatePC = '1' then
+                regFileArray(to_integer(unsigned(reg3Addr))) <= reg3Data;
+                regFileArray(0) <= PCtoRF;
+            elsif (not regWrite = '1') and updatePC = '1'then
+                regFileArray(0) <= PCtoRF;
+            elsif regWrite = '1' and (not updatePC = '1')then
+                regFileArray(to_integer(unsigned(reg3Addr))) <= reg3Data;
             end if;
         end if;
     end process;
 
-    process(reset)
-    begin
-        if reset = '1' then
-            regFile <= (others => (others => '0'));
-        end if;
-    end process;
+    -- process(reset)
+    -- begin
+    --     if reset = '1' then
+    --         regFileArray <= (others => (others => '0'));
+    --     end if;
+    -- end process;
 
     
-        reg1Data <= regFile(to_integer(unsigned(reg1Addr)));
-        reg2Data <= regFile(to_integer(unsigned(reg2Addr)));
-        PC <= regFile(0);
+        reg1Data <= regFileArray(to_integer(unsigned(reg1Addr)));
+        reg2Data <= regFileArray(to_integer(unsigned(reg2Addr)));
+        PC <= regFileArray(0);
 
     -- process(readPC)
     -- begin
