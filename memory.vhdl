@@ -18,7 +18,7 @@ architecture Behavioral of memory is
     -- Initiazation of RAM
     signal RAM_Array : RAM := (others => (others => '0'));
 begin
-    process(RAM_Clock, RAM_Array)
+    process(RAM_Clock, RAM_Address, RAM_Array)
     begin
         if rising_edge(RAM_Clock) then
             if RAM_Write = '1' then

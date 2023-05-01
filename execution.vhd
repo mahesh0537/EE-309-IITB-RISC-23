@@ -189,7 +189,7 @@ begin
 				
 				-- default pc increment, done in instruction
 				-- fetch stage. write dummy value for now
-				PC_new <= "0000000000000000";
+				PC_new <= "0000000000000011";
 				useNewPc <= '0';
 			elsif (CB_useNewPC = '1') then
 				-- flags are not modified
