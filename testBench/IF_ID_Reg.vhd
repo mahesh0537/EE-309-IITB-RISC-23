@@ -185,7 +185,7 @@ begin
     );
     instructionFetch1 : instructionFetch port map(
         clk => clk,
-        PCtoFetch => PCtoFetch,
+        PCtoFetch => PC_RF,
         instruction => instruction_IF,
         PCfromEx => PCfrom_Ex,
         PCbranchSignal_Ex => PCbranchSignal_Ex,
@@ -258,7 +258,7 @@ begin
             clk <= not clk;
             wait for 40 ns;
             i := i + 1;
-            PCtoFetch <= PCOutFinal_IF;
+            -- PCtoFetch <= PCOutFinal_IF;
             updatePCinRegFile <= not stallInstructionRead_Ex;
             --IF WRITE
             write(OUTPUT_LINE, to_string(" ______________________________________________________ "));
