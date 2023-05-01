@@ -4,6 +4,9 @@ use ieee.numeric_std.all;
 
 entity execStage is
 	port(
+		-- not needed, 
+		clk: in std_logic;
+	
 		opcode: in std_logic_vector(3 downto 0);
 		Ra, Rb, Rc: in std_logic_vector(2 downto 0);
 		RaValue, RbValue: in std_logic_vector(15 downto 0);
@@ -11,7 +14,7 @@ entity execStage is
 		condition: in std_logic_vector(1 downto 0);
 		useComplement: in std_logic;
 		PC: in std_logic_vector(15 downto 0);
-		
+
 		-- this PC is to be used when a branch instruction is
 		-- executed. otherwise, the default update is to be performed
 		-- i.e. PC <- PC + 2
@@ -22,11 +25,11 @@ entity execStage is
 		regNewValue: out std_logic_vector(15 downto 0);
 		regToWrite: out std_logic_vector(2 downto 0);
 		writeReg: out std_logic;
-		
+
 		zeroFlagIn: in std_logic;
 		zeroFlagOut: out std_logic;
 --		zeroFlagWriteEnable: in std_logic;
-		
+
 		carryFlagIn: in std_logic;
 		carryFlagOut: out std_logic;
 --		carryFlagWriteEnable: in std_logic;
@@ -187,15 +190,18 @@ begin
 	-- whether we use the new result or not is decided by the writeReg flag
 	regNewValue <= ALU_result when ALU_useResult = '1' else
 						UCB_RA_new when UCB_useNewRa = '1' else
+						ALU_result when opcode = "0011" else
 						"0000000000000000";
 	
 	regToWrite <= 	Rc when (ALU_useResult = '1' and (opcode = "0001" or opcode = "0010")) else -- Rtype ADD and Rtype NAND instructions
 						Ra when (ALU_useResult = '1' and opcode = "0000") else
-						Ra when (UCB_useNewPC = '1') else "111";
+						Ra when (UCB_useNewPC = '1') else 
+						Ra when opcode = "0011" else "111";	-- lli instruction
 	
 	writeReg <= '1' when ALU_useResult = '1' else
 					'0' when CB_useNewPC = '1' else
-					UCB_useNewRa when UCB_useNewPC = '1' else '0';
+					UCB_useNewRa when UCB_useNewPC = '1' else
+					'1' when opcode = "0011" else '0';
 	
 	PC_new <= 	"0000000000000000" when ALU_useResult = '1' else
 					CB_PC_new when CB_useNewPC = '1' else
