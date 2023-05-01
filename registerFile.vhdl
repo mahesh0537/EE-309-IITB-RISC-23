@@ -32,7 +32,6 @@ begin
                 regFile(0) <= PCtoRF;
             end if;
         end if;
-        PC <= regFile(0);
     end process;
 
     process(reset)
@@ -42,15 +41,13 @@ begin
         end if;
     end process;
 
-    process(reg1Addr, reg2Addr)
-    begin
+    
         reg1Data <= regFile(to_integer(unsigned(reg1Addr)));
         reg2Data <= regFile(to_integer(unsigned(reg2Addr)));
         PC <= regFile(0);
-    end process;
 
-    process(readPC)
-    begin
-            PC <= regFile(0);
-    end process;
+    -- process(readPC)
+    -- begin
+    --         PC <= regFile(0);
+    -- end process;
 end regFile_arch;
