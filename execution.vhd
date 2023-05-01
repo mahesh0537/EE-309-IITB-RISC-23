@@ -44,7 +44,10 @@ end entity execStage;
 architecture impl of execStage is
 component ALU_wrapper is
 	port (
-		A, B: in std_logic_vector(15 downto 0);
+		-- inputs to be forwarded to the ALU
+		-- the exact operation performed is dependent on the opcode
+		-- see the doc for more details
+		RaValue, RbValue, immediate: in std_logic_vector(15 downto 0);
 		opcode: in std_logic_vector(3 downto 0);
 		condition: in std_logic_vector(1 downto 0);
 		compliment: in std_logic;
@@ -115,14 +118,15 @@ signal UCB_RA_new: std_logic_vector(15 downto 0);
 signal PC_plus2: std_logic_vector(15 downto 0);
 begin
 	
-	ALU_A <= RaValue;
-	ALU_B <= RbValue when (opcode = "0001" or opcode = "0010") else
-				immediate; --when (opcode = "0000")
+	-- ALU_A <= RaValue;
+	-- ALU_B <= RbValue when (opcode = "0001" or opcode = "0010") else
+	-- 			immediate; --when (opcode = "0000")
 	
 	ALU_wrapperInstance: ALU_wrapper
 		port map (
-			A => ALU_A,
-			B => ALU_B,
+			RaValue => RaValue,
+			RbValue => RbValue,
+			immediate => immediate,
 			opcode => opcode,
 			condition => condition,
 			ZF_prev => m_ZeroFlag,
@@ -179,17 +183,22 @@ begin
 			writeBackEnable => writeBackEnable
 		);
 	process (clk) begin
-		if rising_edge(clk) then
+		if clk = '1' then
 			if (ALU_useResult = '1') then
 				m_ZeroFlag <= ALU_ZF;
 				m_CarryFlag <= ALU_CF;
 				regNewValue <= ALU_result;
-				regToWrite <= Rc;
+				if (opcode = "0001" or opcode = "0010") then
+					regToWrite <= Rc;
+				else
+					regToWrite <= Ra;
+				end if;
+				-- regToWrite <= Rc when (opcode = "0001" or opcode = "0010") else Ra;
 				writeReg <= '1';
 				
 				-- default pc increment, done in instruction
 				-- fetch stage. write dummy value for now
-				PC_new <= "0000000000000011";
+				PC_new <= "1100110011001100";
 				useNewPc <= '0';
 			elsif (CB_useNewPC = '1') then
 				-- flags are not modified
@@ -199,7 +208,7 @@ begin
 				
 				-- none of the conditional branch instructions
 				-- modify registers. write a dummy value for now
-				regNewValue <= "0000000000000000";
+				regNewValue <= "0011001100110011";
 				regToWrite <= "111";
 				writeReg <= '0';
 			elsif (UCB_useNewPC = '1') then
@@ -214,9 +223,9 @@ begin
 				
 			else
 				-- nothing is updated
-				PC_new <= "0000000000000000";
+				PC_new <= "1100110011001100";
 				useNewPc <= '0';
-				regNewValue <= "0000000000000000";
+				regNewValue <= "0011001100110011";
 				regToWrite <= "111";
 				writeReg <= '0';
  			end if;

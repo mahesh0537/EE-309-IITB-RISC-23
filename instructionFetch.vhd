@@ -43,10 +43,5 @@ begin
         sel => PCbranchSignal_Ex,
         data_out => PCOutFinal
     );
-process(clk)
-begin
-    if clk = '1' then
     PCnormalUpdate <= std_logic_vector(unsigned(PCtoFetch) + 2);
-    end if;
-end process;
 end impl;

@@ -46,6 +46,70 @@ architecture whatever of IF_ID_Reg is
     );
     end component;
 
+    component execStage is
+        port(
+            clk: in std_logic;
+        
+            opcode: in std_logic_vector(3 downto 0);
+            Ra, Rb, Rc: in std_logic_vector(2 downto 0);
+            RaValue, RbValue: in std_logic_vector(15 downto 0);
+            immediate: in std_logic_vector(15 downto 0);
+            condition: in std_logic_vector(1 downto 0);
+            useComplement: in std_logic;
+            PC: in std_logic_vector(15 downto 0);
+            
+            -- this PC is to be used when a branch instruction is
+            -- executed. otherwise, the default update is to be performed
+            -- i.e. PC <- PC + 2
+            PC_new: out std_logic_vector(15 downto 0);
+            useNewPc: out std_logic;
+    
+            -- the new value of the register and wheter to write to it
+            regNewValue: out std_logic_vector(15 downto 0);
+            regToWrite: out std_logic_vector(2 downto 0);
+            writeReg: out std_logic;
+            
+            -- writing the result to RAM, instead of register file
+            RAM_Address: out std_logic_vector(15 downto 0);
+            RAM_writeEnable: out std_logic;
+            RAM_DataToWrite: out std_logic_vector(15 downto 0);
+            
+            -- used for the load instruction
+            -- tells us where we have to write the result of the
+            -- load instruction, or that of the ALU/branch targets
+            -- '1' is for RAM, '0' is for ALU
+            writeBackUseRAM_orALU: out std_logic;
+            writeBackEnable: out std_logic;
+            
+            stallInstructionRead: out std_logic
+        );
+    end component;
+
+    component memory is
+        port(
+        RAM_Address : in std_logic_vector(15 downto 0); -- 16 bit address for read/write
+        RAM_Data_IN : in std_logic_vector(15 downto 0); -- 16 bit data for write
+        RAM_Data_OUT : out std_logic_vector(15 downto 0); -- 16 bit data for read
+        RAM_Write : in std_logic; -- write enable
+        RAM_Clock : in std_logic -- clock
+    );
+    end component;
+
+    component writeBack is
+        port(
+            clk : in std_logic;
+            writeSignal : in std_logic;
+            writeSignalOut : out std_logic;
+            selectSignalEx_RAM : in std_logic;
+            writeDataIN_Ex : in std_logic_vector(15 downto 0);
+            writeDataIN_RAM : in std_logic_vector(15 downto 0);
+            writeDataOUT : out std_logic_vector(15 downto 0);
+            writeAddressIN : in std_logic_vector(2 downto 0);
+            writeAddressOUT : out std_logic_vector(2 downto 0)
+        );
+    end component;
+
+
 
     --Signals
     signal clk : std_logic := '0';
@@ -70,13 +134,25 @@ architecture whatever of IF_ID_Reg is
 
 
     --Signal for Exec
+    signal reg3Data_Ex : std_logic_vector(15 downto 0) := (others => '0');
+    signal reg3Addr_Ex : std_logic_vector(2 downto 0) := (others => '0');
+    signal RAM_Address_Ex : std_logic_vector(15 downto 0) := (others => '0');
+    signal RAM_writeEnable_Ex : std_logic := '0';
+    signal RAM_DataToWrite_Ex : std_logic_vector(15 downto 0) := (others => '0');
+    signal writeBackUseRAM_orALU_Ex : std_logic := '0';
+    signal writeBackEnable_Ex : std_logic := '0';
+    signal stallInstructionRead_Ex : std_logic := '0';
 
     --Signal for MEM
+    signal RAM_Data_OUT_MEM : std_logic_vector(15 downto 0) := (others => '0');
 
     --Signal for WB
-    signal regWrite_WB : std_logic := '1';
+    signal regWriteEnable_WB : std_logic := '1';
     signal reg3Addr_WB : std_logic_vector(2 downto 0) := (others => '1');
     signal reg3Data_WB : std_logic_vector(15 downto 0) := (others => '1');
+
+
+    signal randomSignal : std_logic := '0';
 
 
 
@@ -98,11 +174,50 @@ begin
     );
     regFile1 : regFile port map(
         clk => clk,
-        regWrite => regWrite_WB,
+        regWrite => regWriteEnable_WB,
         reg1Addr => Ra_ID, reg2Addr => Rb_ID, reg3Addr => reg3Addr_WB,
         reg1Data => reg1Data_RF, reg2Data => reg2Data_RF, reg3Data => reg3Data_WB,
         PC => PC_RF, PCtoRF => PCOutFinal_IF,
         reset => regResetSignal, updatePC => updatePCinRegFile, readPC => '1'
+    );
+    execStage1 : execStage port map(
+        clk => clk,
+        opcode => opcode_ID,
+        Ra => Ra_ID, Rb => Rb_ID, Rc => Rc_ID,
+        RaValue => reg1Data_RF, RbValue => reg2Data_RF,
+        immediate => immediate_ID, condition => condition_ID,
+        useComplement => useComplement_ID,
+        PC => PC_RF,
+        PC_new => PCfrom_Ex,
+        useNewPc => PCbranchSignal_Ex,
+        regNewValue => reg3Data_Ex,
+        regToWrite => reg3Addr_Ex,
+        writeReg => randomSignal,
+        RAM_Address => RAM_Address_Ex,
+        RAM_writeEnable => RAM_writeEnable_Ex,
+        RAM_DataToWrite => RAM_DataToWrite_Ex,
+        writeBackUseRAM_orALU => writeBackUseRAM_orALU_Ex,
+        writeBackEnable => writeBackEnable_Ex,
+        stallInstructionRead => stallInstructionRead_Ex
+    );
+    RAM1 : memory port map(
+        RAM_Address => RAM_Address_Ex,
+        RAM_Data_IN => RAM_DataToWrite_Ex,
+        RAM_Data_OUT => RAM_Data_OUT_MEM,
+        RAM_Write => RAM_writeEnable_Ex,
+        RAM_Clock => clk
+    );
+
+    writeBack1 : writeBack port map(
+        clk => clk,
+        writeSignal => writeBackEnable_Ex,
+        writeSignalOut => regWriteEnable_WB,
+        selectSignalEx_RAM => writeBackUseRAM_orALU_Ex,
+        writeDataIN_Ex => reg3Data_Ex,
+        writeDataIN_RAM => RAM_Data_OUT_MEM,
+        writeDataOUT => reg3Data_WB,
+        writeAddressIN => reg3Addr_Ex,
+        writeAddressOUT => reg3Addr_WB
     );
     
     process
@@ -114,11 +229,16 @@ begin
     begin
         while i < 10 loop
             clk <= not clk;
-            wait for 10 ns;
+            wait for 40 ns;
             i := i + 1;
             PCtoFetch <= PCOutFinal_IF;
-            updatePCinRegFile <= '1';
+            updatePCinRegFile <= not stallInstructionRead_Ex;
             --IF WRITE
+            write(OUTPUT_LINE, to_string(" ______________________________________________________ "));
+            writeline(OUTFILE, OUTPUT_LINE);
+            write(OUTPUT_LINE, to_string(" CLOCK: "));
+            write(OUTPUT_LINE, std_logic_to_bit(clk));
+            writeline(OUTFILE, OUTPUT_LINE);
             write(OUTPUT_LINE, to_string("Instruction: "));
             write(OUTPUT_LINE, to_bitvector(instruction_IF));
             write(OUTPUT_LINE, to_string(" PCtoFetch: "));
@@ -152,8 +272,51 @@ begin
             write(OUTPUT_LINE, to_string(" PC: "));
             write(OUTPUT_LINE, to_bitvector(PC_RF));
             writeline(OUTFILE, OUTPUT_LINE);
+
+            --EX WRITE
+            write(OUTPUT_LINE, to_string("PCfrom_Ex: "));
+            write(OUTPUT_LINE, to_bitvector(PCfrom_Ex));
+            write(OUTPUT_LINE, to_string(" PCbranchSignal_Ex: "));
+            write(OUTPUT_LINE, std_logic_to_bit(PCbranchSignal_Ex));
+            write(OUTPUT_LINE, to_string(" reg3Data_Ex: "));
+            write(OUTPUT_LINE, to_bitvector(reg3Data_Ex));
+            write(OUTPUT_LINE, to_string(" reg3Addr_Ex: "));
+            write(OUTPUT_LINE, to_bitvector(reg3Addr_Ex));
+            write(OUTPUT_LINE, to_string(" RAM_Address_Ex: "));
+            write(OUTPUT_LINE, to_bitvector(RAM_Address_Ex));
+            write(OUTPUT_LINE, to_string(" RAM_writeEnable_Ex: "));
+            write(OUTPUT_LINE, std_logic_to_bit(RAM_writeEnable_Ex));
+            write(OUTPUT_LINE, to_string(" RAM_DataToWrite_Ex: "));
+            write(OUTPUT_LINE, to_bitvector(RAM_DataToWrite_Ex));
+            write(OUTPUT_LINE, to_string(" writeBackUseRAM_orALU_Ex: "));
+            write(OUTPUT_LINE, std_logic_to_bit(writeBackUseRAM_orALU_Ex));
+            write(OUTPUT_LINE, to_string(" writeBackEnable_Ex: "));
+            write(OUTPUT_LINE, std_logic_to_bit(writeBackEnable_Ex));
+            write(OUTPUT_LINE, to_string(" stallInstructionRead_Ex: "));
+            write(OUTPUT_LINE, std_logic_to_bit(stallInstructionRead_Ex));
+            writeline(OUTFILE, OUTPUT_LINE);
+
+            --MEM WRITE
+            write(OUTPUT_LINE, to_string("RAM_Address_Ex: "));
+            write(OUTPUT_LINE, to_bitvector(RAM_Address_Ex));
+            write(OUTPUT_LINE, to_string(" RAM_DataToWrite_Ex: "));
+            write(OUTPUT_LINE, to_bitvector(RAM_DataToWrite_Ex));
+            write(OUTPUT_LINE, to_string(" RAM_writeEnable_Ex: "));
+            write(OUTPUT_LINE, std_logic_to_bit(RAM_writeEnable_Ex));
+            write(OUTPUT_LINE, to_string(" RAM_Data_OUT_MEM: "));
+            write(OUTPUT_LINE, to_bitvector(RAM_Data_OUT_MEM));
+            writeline(OUTFILE, OUTPUT_LINE);
+
+            --WB WRITE
+            write(OUTPUT_LINE, to_string("reg3Data_WB: "));
+            write(OUTPUT_LINE, to_bitvector(reg3Data_WB));
+            write(OUTPUT_LINE, to_string(" reg3Addr_WB: "));
+            write(OUTPUT_LINE, to_bitvector(reg3Addr_WB));
+            write(OUTPUT_LINE, to_string(" writeBackEnable_WB: "));
+            write(OUTPUT_LINE, std_logic_to_bit(regWriteEnable_WB));
+            writeline(OUTFILE, OUTPUT_LINE);
             clk <= not clk;
-            wait for 10 ns;
+            wait for 40 ns;
         end loop;
     end process;
 end whatever;

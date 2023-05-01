@@ -38,21 +38,7 @@ begin
             end if;
         end if;
     end process;
-
-    -- process(reset)
-    -- begin
-    --     if reset = '1' then
-    --         regFileArray <= (others => (others => '0'));
-    --     end if;
-    -- end process;
-
-    
         reg1Data <= regFileArray(to_integer(unsigned(reg1Addr)));
         reg2Data <= regFileArray(to_integer(unsigned(reg2Addr)));
         PC <= regFileArray(0);
-
-    -- process(readPC)
-    -- begin
-    --         PC <= regFile(0);
-    -- end process;
 end regFile_arch;

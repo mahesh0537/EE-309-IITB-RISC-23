@@ -11,16 +11,11 @@ entity instructionMemory is
 end entity instructionMemory;
 
 architecture instructions of instructionMemory is
-    type instructionMemoryDataType is array (0 to 127) of std_logic_vector(7 downto 0);
+    type instructionMemoryDataType is array (0 to 255) of std_logic_vector(7 downto 0);
     signal instructionMemoryData : instructionMemoryDataType := (
-    
+  
     );
 begin 
-    process(clk)
-        begin
-            if clk = '1'then
-                instruction(15 downto 8) <= instructionMemoryData(to_integer(unsigned(address)));
-                instruction(7 downto 0) <= instructionMemoryData(to_integer(unsigned(address))+1);
-            end if;
-    end process;
+instruction(15 downto 8) <= instructionMemoryData(to_integer(unsigned(address)));
+instruction(7 downto 0) <= instructionMemoryData(to_integer(unsigned(address))+1);
 end architecture instructions;

@@ -1,30 +1,80 @@
-Instruction: 0001001010011011 PCtoFetch: 0000000000000000 PCOUT: 0000000000000010
-Ra: 001 Rb: 010 Rc: 011 immediate: 0000000000000000 condition: 11 useComplement: 0 opcode: 0001
+ ______________________________________________________ 
+ CLOCK: 1
+Instruction: 0000001001000001 PCtoFetch: 0000000000000000 PCOUT: 0000000000000010
+Ra: 001 Rb: 001 Rc: 000 immediate: 0000000000000001 condition: 01 useComplement: 0 opcode: 0000
 reg1Data: 0000000000000000 reg2Data: 0000000000000000 PC: 0000000000000000
-Instruction: 0011001010011011 PCtoFetch: 0000000000000010 PCOUT: 0000000000000100
-Ra: 001 Rb: 010 Rc: 011 immediate: 0000000010011011 condition: 11 useComplement: 0 opcode: 0011
+PCfrom_Ex: 1100110011001100 PCbranchSignal_Ex: 0 reg3Data_Ex: 0011001100110011 reg3Addr_Ex: 111 RAM_Address_Ex: 0000000000000001 RAM_writeEnable_Ex: 0 RAM_DataToWrite_Ex: 0000000000000000 writeBackUseRAM_orALU_Ex: 0 writeBackEnable_Ex: 1 stallInstructionRead_Ex: 0
+RAM_Address_Ex: 0000000000000001 RAM_DataToWrite_Ex: 0000000000000000 RAM_writeEnable_Ex: 0 RAM_Data_OUT_MEM: 0000000000000000
+reg3Data_WB: 0011001100110011 reg3Addr_WB: 111 writeBackEnable_WB: 1
+ ______________________________________________________ 
+ CLOCK: 1
+Instruction: 0000001001000001 PCtoFetch: 0000000000000010 PCOUT: 0000000000000100
+Ra: 001 Rb: 001 Rc: 000 immediate: 0000000000000001 condition: 01 useComplement: 0 opcode: 0000
 reg1Data: 0000000000000000 reg2Data: 0000000000000000 PC: 0000000000000010
-Instruction: 0010001010011011 PCtoFetch: 0000000000000100 PCOUT: 0000000000000110
-Ra: 001 Rb: 010 Rc: 011 immediate: 0000000000000000 condition: 11 useComplement: 0 opcode: 0010
-reg1Data: 0000000000000000 reg2Data: 0000000000000000 PC: 0000000000000100
-Instruction: 0001001010011011 PCtoFetch: 0000000000000110 PCOUT: 0000000000001000
-Ra: 001 Rb: 010 Rc: 011 immediate: 0000000000000000 condition: 11 useComplement: 0 opcode: 0001
-reg1Data: 0000000000000000 reg2Data: 0000000000000000 PC: 0000000000000110
-Instruction: 1111111111111111 PCtoFetch: 0000000000001000 PCOUT: 0000000000001010
-Ra: 111 Rb: 111 Rc: 111 immediate: 1111111111111111 condition: 11 useComplement: 0 opcode: 1111
-reg1Data: 1111111111111111 reg2Data: 1111111111111111 PC: 0000000000001000
-Instruction: 1111111111111111 PCtoFetch: 0000000000001010 PCOUT: 0000000000001100
-Ra: 111 Rb: 111 Rc: 111 immediate: 1111111111111111 condition: 11 useComplement: 0 opcode: 1111
-reg1Data: 1111111111111111 reg2Data: 1111111111111111 PC: 0000000000001010
-Instruction: 1111111111111111 PCtoFetch: 0000000000001100 PCOUT: 0000000000001110
-Ra: 111 Rb: 111 Rc: 111 immediate: 1111111111111111 condition: 11 useComplement: 0 opcode: 1111
-reg1Data: 1111111111111111 reg2Data: 1111111111111111 PC: 0000000000001100
-Instruction: 1111111111111111 PCtoFetch: 0000000000001110 PCOUT: 0000000000010000
-Ra: 111 Rb: 111 Rc: 111 immediate: 1111111111111111 condition: 11 useComplement: 0 opcode: 1111
-reg1Data: 1111111111111111 reg2Data: 1111111111111111 PC: 0000000000001110
-Instruction: 1111111111111111 PCtoFetch: 0000000000010000 PCOUT: 0000000000010010
-Ra: 111 Rb: 111 Rc: 111 immediate: 1111111111111111 condition: 11 useComplement: 0 opcode: 1111
-reg1Data: 1111111111111111 reg2Data: 1111111111111111 PC: 0000000000010000
-Instruction: 1111111111111111 PCtoFetch: 0000000000010010 PCOUT: 0000000000010100
-Ra: 111 Rb: 111 Rc: 111 immediate: 1111111111111111 condition: 11 useComplement: 0 opcode: 1111
-reg1Data: 1111111111111111 reg2Data: 1111111111111111 PC: 0000000000010010
+PCfrom_Ex: 1100110011001100 PCbranchSignal_Ex: 0 reg3Data_Ex: 0000000000000001 reg3Addr_Ex: 001 RAM_Address_Ex: 0000000000000001 RAM_writeEnable_Ex: 0 RAM_DataToWrite_Ex: 0000000000000000 writeBackUseRAM_orALU_Ex: 0 writeBackEnable_Ex: 1 stallInstructionRead_Ex: 0
+RAM_Address_Ex: 0000000000000001 RAM_DataToWrite_Ex: 0000000000000000 RAM_writeEnable_Ex: 0 RAM_Data_OUT_MEM: 0000000000000000
+reg3Data_WB: 0000000000000001 reg3Addr_WB: 001 writeBackEnable_WB: 1
+ ______________________________________________________ 
+ CLOCK: 1
+Instruction: 0000001001000001 PCtoFetch: 0000000000000100 PCOUT: 0000000000000110
+Ra: 001 Rb: 001 Rc: 000 immediate: 0000000000000001 condition: 01 useComplement: 0 opcode: 0000
+reg1Data: 0000000000000001 reg2Data: 0000000000000001 PC: 0000000000000100
+PCfrom_Ex: 1100110011001100 PCbranchSignal_Ex: 0 reg3Data_Ex: 0000000000000001 reg3Addr_Ex: 001 RAM_Address_Ex: 0000000000000010 RAM_writeEnable_Ex: 0 RAM_DataToWrite_Ex: 0000000000000001 writeBackUseRAM_orALU_Ex: 0 writeBackEnable_Ex: 1 stallInstructionRead_Ex: 0
+RAM_Address_Ex: 0000000000000010 RAM_DataToWrite_Ex: 0000000000000001 RAM_writeEnable_Ex: 0 RAM_Data_OUT_MEM: 0000000000000000
+reg3Data_WB: 0000000000000001 reg3Addr_WB: 001 writeBackEnable_WB: 1
+ ______________________________________________________ 
+ CLOCK: 1
+Instruction: 0000001001000001 PCtoFetch: 0000000000000110 PCOUT: 0000000000001000
+Ra: 001 Rb: 001 Rc: 000 immediate: 0000000000000001 condition: 01 useComplement: 0 opcode: 0000
+reg1Data: 0000000000000001 reg2Data: 0000000000000001 PC: 0000000000000110
+PCfrom_Ex: 1100110011001100 PCbranchSignal_Ex: 0 reg3Data_Ex: 0000000000000010 reg3Addr_Ex: 001 RAM_Address_Ex: 0000000000000010 RAM_writeEnable_Ex: 0 RAM_DataToWrite_Ex: 0000000000000001 writeBackUseRAM_orALU_Ex: 0 writeBackEnable_Ex: 1 stallInstructionRead_Ex: 0
+RAM_Address_Ex: 0000000000000010 RAM_DataToWrite_Ex: 0000000000000001 RAM_writeEnable_Ex: 0 RAM_Data_OUT_MEM: 0000000000000000
+reg3Data_WB: 0000000000000010 reg3Addr_WB: 001 writeBackEnable_WB: 1
+ ______________________________________________________ 
+ CLOCK: 1
+Instruction: 0000001001000001 PCtoFetch: 0000000000001000 PCOUT: 0000000000001010
+Ra: 001 Rb: 001 Rc: 000 immediate: 0000000000000001 condition: 01 useComplement: 0 opcode: 0000
+reg1Data: 0000000000000010 reg2Data: 0000000000000010 PC: 0000000000001000
+PCfrom_Ex: 1100110011001100 PCbranchSignal_Ex: 0 reg3Data_Ex: 0000000000000010 reg3Addr_Ex: 001 RAM_Address_Ex: 0000000000000011 RAM_writeEnable_Ex: 0 RAM_DataToWrite_Ex: 0000000000000010 writeBackUseRAM_orALU_Ex: 0 writeBackEnable_Ex: 1 stallInstructionRead_Ex: 0
+RAM_Address_Ex: 0000000000000011 RAM_DataToWrite_Ex: 0000000000000010 RAM_writeEnable_Ex: 0 RAM_Data_OUT_MEM: 0000000000000000
+reg3Data_WB: 0000000000000010 reg3Addr_WB: 001 writeBackEnable_WB: 1
+ ______________________________________________________ 
+ CLOCK: 1
+Instruction: 0000001001000001 PCtoFetch: 0000000000001010 PCOUT: 0000000000001100
+Ra: 001 Rb: 001 Rc: 000 immediate: 0000000000000001 condition: 01 useComplement: 0 opcode: 0000
+reg1Data: 0000000000000010 reg2Data: 0000000000000010 PC: 0000000000001010
+PCfrom_Ex: 1100110011001100 PCbranchSignal_Ex: 0 reg3Data_Ex: 0000000000000011 reg3Addr_Ex: 001 RAM_Address_Ex: 0000000000000011 RAM_writeEnable_Ex: 0 RAM_DataToWrite_Ex: 0000000000000010 writeBackUseRAM_orALU_Ex: 0 writeBackEnable_Ex: 1 stallInstructionRead_Ex: 0
+RAM_Address_Ex: 0000000000000011 RAM_DataToWrite_Ex: 0000000000000010 RAM_writeEnable_Ex: 0 RAM_Data_OUT_MEM: 0000000000000000
+reg3Data_WB: 0000000000000011 reg3Addr_WB: 001 writeBackEnable_WB: 1
+ ______________________________________________________ 
+ CLOCK: 1
+Instruction: 0000001001000001 PCtoFetch: 0000000000001100 PCOUT: 0000000000001110
+Ra: 001 Rb: 001 Rc: 000 immediate: 0000000000000001 condition: 01 useComplement: 0 opcode: 0000
+reg1Data: 0000000000000011 reg2Data: 0000000000000011 PC: 0000000000001100
+PCfrom_Ex: 1100110011001100 PCbranchSignal_Ex: 0 reg3Data_Ex: 0000000000000011 reg3Addr_Ex: 001 RAM_Address_Ex: 0000000000000100 RAM_writeEnable_Ex: 0 RAM_DataToWrite_Ex: 0000000000000011 writeBackUseRAM_orALU_Ex: 0 writeBackEnable_Ex: 1 stallInstructionRead_Ex: 0
+RAM_Address_Ex: 0000000000000100 RAM_DataToWrite_Ex: 0000000000000011 RAM_writeEnable_Ex: 0 RAM_Data_OUT_MEM: 0000000000000000
+reg3Data_WB: 0000000000000011 reg3Addr_WB: 001 writeBackEnable_WB: 1
+ ______________________________________________________ 
+ CLOCK: 1
+Instruction: 0000001001000001 PCtoFetch: 0000000000001110 PCOUT: 0000000000010000
+Ra: 001 Rb: 001 Rc: 000 immediate: 0000000000000001 condition: 01 useComplement: 0 opcode: 0000
+reg1Data: 0000000000000011 reg2Data: 0000000000000011 PC: 0000000000001110
+PCfrom_Ex: 1100110011001100 PCbranchSignal_Ex: 0 reg3Data_Ex: 0000000000000100 reg3Addr_Ex: 001 RAM_Address_Ex: 0000000000000100 RAM_writeEnable_Ex: 0 RAM_DataToWrite_Ex: 0000000000000011 writeBackUseRAM_orALU_Ex: 0 writeBackEnable_Ex: 1 stallInstructionRead_Ex: 0
+RAM_Address_Ex: 0000000000000100 RAM_DataToWrite_Ex: 0000000000000011 RAM_writeEnable_Ex: 0 RAM_Data_OUT_MEM: 0000000000000000
+reg3Data_WB: 0000000000000100 reg3Addr_WB: 001 writeBackEnable_WB: 1
+ ______________________________________________________ 
+ CLOCK: 1
+Instruction: 0000001001000001 PCtoFetch: 0000000000010000 PCOUT: 0000000000010010
+Ra: 001 Rb: 001 Rc: 000 immediate: 0000000000000001 condition: 01 useComplement: 0 opcode: 0000
+reg1Data: 0000000000000100 reg2Data: 0000000000000100 PC: 0000000000010000
+PCfrom_Ex: 1100110011001100 PCbranchSignal_Ex: 0 reg3Data_Ex: 0000000000000100 reg3Addr_Ex: 001 RAM_Address_Ex: 0000000000000101 RAM_writeEnable_Ex: 0 RAM_DataToWrite_Ex: 0000000000000100 writeBackUseRAM_orALU_Ex: 0 writeBackEnable_Ex: 1 stallInstructionRead_Ex: 0
+RAM_Address_Ex: 0000000000000101 RAM_DataToWrite_Ex: 0000000000000100 RAM_writeEnable_Ex: 0 RAM_Data_OUT_MEM: 0000000000000000
+reg3Data_WB: 0000000000000100 reg3Addr_WB: 001 writeBackEnable_WB: 1
+ ______________________________________________________ 
+ CLOCK: 1
+Instruction: 0000001001000001 PCtoFetch: 0000000000010010 PCOUT: 0000000000010100
+Ra: 001 Rb: 001 Rc: 000 immediate: 0000000000000001 condition: 01 useComplement: 0 opcode: 0000
+reg1Data: 0000000000000100 reg2Data: 0000000000000100 PC: 0000000000010010
+PCfrom_Ex: 1100110011001100 PCbranchSignal_Ex: 0 reg3Data_Ex: 0000000000000101 reg3Addr_Ex: 001 RAM_Address_Ex: 0000000000000101 RAM_writeEnable_Ex: 0 RAM_DataToWrite_Ex: 0000000000000100 writeBackUseRAM_orALU_Ex: 0 writeBackEnable_Ex: 1 stallInstructionRead_Ex: 0
+RAM_Address_Ex: 0000000000000101 RAM_DataToWrite_Ex: 0000000000000100 RAM_writeEnable_Ex: 0 RAM_Data_OUT_MEM: 0000000000000000
+reg3Data_WB: 0000000000000101 reg3Addr_WB: 001 writeBackEnable_WB: 1
