@@ -44,7 +44,7 @@ architecture impl of instructionDecoder is
 begin
 
 	opcode <= instruction(15 downto 12);
-	useComplement <= instruction(2);
+	useComplement <= instruction(2) when instruction(15 downto 12) = "0001" or instruction(15 downto 12) = "0010" else '0';
 	condition <= instruction(1 downto 0);
 	
 	

@@ -51,7 +51,7 @@ entity ALU_wrapper is
 		-- inputs to be forwarded to the ALU
 		-- the exact operation performed is dependent on the opcode
 		-- see the doc for more details
-		A, B: in std_logic_vector(15 downto 0);
+		RaValue, RbValue, immediate: in std_logic_vector(15 downto 0);
 		opcode: in std_logic_vector(3 downto 0);
 		condition: in std_logic_vector(1 downto 0);
 		compliment: in std_logic;
@@ -79,21 +79,45 @@ end component ALU;
 
 signal ALU_op: std_logic_vector(1 downto 0);
 signal ALU_A, ALU_B: std_logic_vector(15 downto 0);
+signal inpA, inpB: std_logic_vector(15 downto 0);
 signal ALU_carryIn: std_logic;
+signal ZF_new, CF_new: std_logic;
 
 -- '0' is for ADD, '1' is for NAND
 signal m_toPerformAddOrNand: std_logic;
 signal m_useCarry: std_logic;
 begin
 
-	ALU_A <= A;
-	ALU_B <= B when compliment = '0' else not B;
+	ALU_A <= inpA;
+	-- one has to be careful while testing as no opcode checks are done here
+	-- may cause mistake with instructions like adi where compliment is not defined
+	-- i.e is 0 always. this is handled by the instruction decoder.
+	ALU_B <= inpB when compliment = '0' else not inpB;
+	
+	inpA <= 	RaValue when (	
+					opcode = "0001" or	-- add rx, ry type instructions
+					opcode = "0000" or	-- adi
+					opcode = "0010"	 	-- nand rx, ry type instructions
+				) else RbValue when(
+					opcode = "0100" or	-- lw
+					opcode = "0101"		-- sw
+				) else "0000000000000000"; -- lli
+				
+	inpB <=	RbValue when (
+					opcode = "0001" or	-- add rx, ry type instructions
+					opcode = "0010"		-- nand rx, ry type instructions
+				) else immediate when (
+					opcode = "0000" or	-- adi
+					opcode = "0100" or	-- lw
+					opcode = "0101"		-- sw
+				) else "0000000" & immediate(8 downto 0);	-- lli
+				
 	
 	ALU_carryIn <= CF_prev when ((opcode = "0001" and condition = "11") or
 										  (opcode = "0010")) else '0';
 	
-	with opcode select
-		m_toPerformAddOrNand <= '0' when "0000" | "0001", 
+	with opcode select						-- adi, add, lw, sw, lli
+		m_toPerformAddOrNand <= '0' when "0000" | "0001" | "0100" | "0101" | "0011", 
 										'1' when others;
 		
 	ALU_instance: ALU
@@ -103,11 +127,11 @@ begin
 			carryIn => ALU_carryIn,
 			op => m_toPerformAddOrNand,
 			result => result,
-			ZF => ZF,
-			CF => CF
+			ZF => ZF_new,
+			CF => CF_new
 		);
 
-	useresult <=	'1' when (opcode = "0001" and (
+	useResult <=	'1' when (opcode = "0001" and (
 										(condition = "00") or 							-- ada and aca
 										(condition = "01" and ZF_prev = '1') or	-- adz and acz
 										(condition = "10" and CF_prev = '1') or	-- adc and acc
@@ -119,5 +143,31 @@ begin
 										(condition = "10" and CF_prev = '1') or	-- ndc and ncc
 										(condition = "01" and ZF_prev = '1')		-- ndz and ncz
 									)) else '0';
+									
+	ZF <=	ZF_new when (opcode = "0001" and (
+								(condition = "00") or 							-- ada and aca
+								(condition = "01" and ZF_prev = '1') or	-- adz and acz
+								(condition = "10" and CF_prev = '1') or	-- adc and acc
+								(condition = "11")								-- acw and awc
+							)) or 
+							(opcode = "0000") or									-- aci
+							(opcode = "0010" and (
+								(condition = "00") or							-- ndu and ncu
+								(condition = "10" and CF_prev = '1') or	-- ndc and ncc
+								(condition = "01" and ZF_prev = '1')		-- ndz and ncz
+							)) else ZF_prev;
+									
+	CF <=	CF_new when (opcode = "0001" and (
+								(condition = "00") or 							-- ada and aca
+								(condition = "01" and ZF_prev = '1') or	-- adz and acz
+								(condition = "10" and CF_prev = '1') or	-- adc and acc
+								(condition = "11")								-- acw and awc
+							)) or 
+							(opcode = "0000") or									-- aci
+							(opcode = "0010" and (
+								(condition = "00") or							-- ndu and ncu
+								(condition = "10" and CF_prev = '1') or	-- ndc and ncc
+								(condition = "01" and ZF_prev = '1')		-- ndz and ncz
+							)) else CF_prev;
 
 end architecture struct;
